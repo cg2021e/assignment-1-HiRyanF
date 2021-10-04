@@ -4,6 +4,7 @@ import { Shape } from './Shape.js';
 
 window.onload = () => {
     main();
+    render();
 }
 
 let utils;
@@ -35,14 +36,38 @@ function main(){
         }
     `;
 
+    let vertexShaderSource2 = `
+        attribute vec2 aPosition; 
+        attribute vec4 aColor;
+        varying vec4 vColor;
+        uniform vec2 uChange;
+        
+        void main(){
+            gl_PointSize = 10.0;
+            gl_Position = vec4(aPosition + uChange, 0.0, 1.0);
+            vColor = aColor;
+        }
+    `;
+
+    let fragmentShaderSource2 = `
+        precision mediump float;
+        varying vec4 vColor;
+        void main(){
+            gl_FragColor = vec4(vColor);
+        }
+    `;
+
     let vertexShader = utils.getShader(gl.VERTEX_SHADER, vertexShaderSource);
     let fragmentShader = utils.getShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
+    let vertexShader2 = utils.getShader(gl.VERTEX_SHADER, vertexShaderSource2);
+    let fragmentShader2 = utils.getShader(gl.FRAGMENT_SHADER, fragmentShaderSource2);
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     let programs = [];
     programs.push(utils.createProgram(vertexShader,fragmentShader));
+    programs.push(utils.createProgram(vertexShader2,fragmentShader2));
     
     const default_alpha = 0.1;
     let shapes = [];
@@ -214,6 +239,22 @@ function main(){
     shape.addVertices(rounded_cap_front_right_vertices);
     shape.addVertices(rounded_cap_top_vertices);
     shape.addVertices(line_vertices);
+    shapes.push(shape);
+
+    let left_vertices = new Vertices([
+        0.3125, -0.5, 1.0, 1.0, 1.0, default_alpha,
+        0.6875, -0.5, 1.0, 1.0, 1.0, default_alpha,
+        0.6875, -0.33, 1.0, 1.0, 1.0, default_alpha,
+        0.3125, -0.5, 1.0, 1.0, 1.0, default_alpha,
+        0.6875, -0.33, 1.0, 1.0, 1.0, default_alpha,
+        0.3125, -0.33, 1.0, 1.0, 1.0, default_alpha,
+    ], gl.TRIANGLES);
+
+
+    shape = new Shape();
+    shape.addVertices(left_vertices);
+    shape.setCenter(0.5,-0.415);
+    shape.setSize(0.375, 0.25);
     shapes.push(shape);
 
     utils.addShape(shapes);
