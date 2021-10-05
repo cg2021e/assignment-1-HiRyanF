@@ -17,8 +17,8 @@ export class Shape{
         this.height = height;
     }
 
-    isBounce(){
-        if(this.centerY + this.height/2 >= 1 || this.centerY - this.height/2 <= -1){
+    isBounce(yCenterPos){
+        if(yCenterPos + this.height/2 >= 1 || yCenterPos - this.height/2 <= -1){
             return true;
         }
         return false;

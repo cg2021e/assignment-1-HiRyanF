@@ -20,10 +20,11 @@ function main(){
         attribute vec2 aPosition; 
         attribute vec4 aColor;
         varying vec4 vColor;
+        uniform vec2 uChange;
         
         void main(){
             gl_PointSize = 10.0;
-            gl_Position = vec4(aPosition, 0.0, 1.0);
+            gl_Position = vec4(aPosition + uChange, 0.0, 1.0);
             vColor = aColor;
         }
     `;
@@ -36,41 +37,19 @@ function main(){
         }
     `;
 
-    let vertexShaderSource2 = `
-        attribute vec2 aPosition; 
-        attribute vec4 aColor;
-        varying vec4 vColor;
-        uniform vec2 uChange;
-        
-        void main(){
-            gl_PointSize = 10.0;
-            gl_Position = vec4(aPosition + uChange, 0.0, 1.0);
-            vColor = aColor;
-        }
-    `;
-
-    let fragmentShaderSource2 = `
-        precision mediump float;
-        varying vec4 vColor;
-        void main(){
-            gl_FragColor = vec4(vColor);
-        }
-    `;
 
     let vertexShader = utils.getShader(gl.VERTEX_SHADER, vertexShaderSource);
     let fragmentShader = utils.getShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
-    let vertexShader2 = utils.getShader(gl.VERTEX_SHADER, vertexShaderSource2);
-    let fragmentShader2 = utils.getShader(gl.FRAGMENT_SHADER, fragmentShaderSource2);
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    let programs = [];
-    programs.push(utils.createProgram(vertexShader,fragmentShader));
-    programs.push(utils.createProgram(vertexShader2,fragmentShader2));
-    
+    let program = utils.createProgram(vertexShader,fragmentShader);
+    gl.useProgram(program);
+
     const default_alpha = 0.08;
-    let shapes = [];
+    let shapes = []; // Left side shape is a Shape's object and Right side shape is a different Shape's object
+    // Each shape may have more than one Vertices object (which have points data and its own gl primitive)
 
     let front_vertices = new Vertices([
         -0.9, -0.5, 1.0, 1.0, 1.0, default_alpha, 
@@ -93,6 +72,7 @@ function main(){
     const stepY = 0.0000005;
     const colStep = -0.00003;
 
+    //define points for rounded bottom left using trapezoidal approach
     for (let i = 0; i <=25000; i++) {
         rounded_bottom_left_vertices.push(
             startX - stepX, startY + stepY, col, col, col, default_alpha,
@@ -119,6 +99,7 @@ function main(){
     col = 0.9999;
     let rounded_bottom_right_vertices = []; 
     
+    //define points for rounded bottom right using trapezoidal approach
     for (let i = 0; i <=25000; i++) {
         rounded_bottom_right_vertices.push(
             startX, startY + stepY, col, col, col, default_alpha,
@@ -156,6 +137,7 @@ function main(){
     const covercolStep = -0.00003;
     let rounded_cap_top_left_vertices = [];
     
+    //define points for cap top left using trapezoidal approach
     for (let i = 0; i <=25000; i++) {
         rounded_cap_top_left_vertices.push(
             startX - coverStepX, startY, col, col, col, default_alpha,
@@ -184,6 +166,7 @@ function main(){
 
     let rounded_cap_top_right_vertices = [];
     
+    //define points for rounded cap top right using trapezoidal approach
     for (let i = 0; i <=25000; i++) {
         rounded_cap_top_right_vertices.push(
             startX, startY, col, col, col, default_alpha,
@@ -235,6 +218,8 @@ function main(){
     let x, y, angle, radius = 0.02;
     startX = -0.85 + (-0.2 - (-0.85) - radius)/2;
     startY = -0.25 + (-0.2 - (-0.25) - radius)/2 + 0.01;
+
+    // define oval points for jar sticker
     for (let i = 0; i <= totalPoints; i++) {
         angle = 2 * Math.PI * i / totalPoints;
         x = startX + (radius + 0.1) * Math.cos(angle);
@@ -245,7 +230,7 @@ function main(){
     sticker_vertices = new Vertices(sticker_vertices,gl.TRIANGLE_FAN);
 
 
-    let shape = new Shape();
+    let shape = new Shape(); //left side shape
     shape.addVertices(front_vertices);
     shape.addVertices(rounded_bottom_left_vertices);
     shape.addVertices(rounded_bottom_right_vertices);
@@ -274,6 +259,7 @@ function main(){
     topY = -0.33;
     col = 0.9999;
 
+    //define points for rounded bottom left using trapezoidal approach
     for (let i = 0; i <=25000; i++) {
         rounded_bottom_left_vertices2.push(
             startX - stepX, startY + stepY, col, col, col, default_alpha,
@@ -300,6 +286,7 @@ function main(){
     col = 0.9999;
     let rounded_bottom_right_vertices2 = []; 
     
+    //define points for rounded bottom right using trapezoidal approach
     for (let i = 0; i <=25000; i++) {
         rounded_bottom_right_vertices2.push(
             startX, startY + stepY, col, col, col, default_alpha,
@@ -335,6 +322,7 @@ function main(){
 
     let rounded_cap_top_left_vertices2 = [];
     
+    //define points for rounded cap top left using trapezoidal approach
     for (let i = 0; i <=25000; i++) {
         rounded_cap_top_left_vertices2.push(
             startX - coverStepX, startY, col, col, col, default_alpha,
@@ -362,7 +350,8 @@ function main(){
     col = 0.9999;
 
     let rounded_cap_top_right_vertices2 = [];
-    
+
+    //define points for rounded cap top right using trapezoidal approach
     for (let i = 0; i <=25000; i++) {
         rounded_cap_top_right_vertices2.push(
             startX, startY, col, col, col, default_alpha,
@@ -412,6 +401,8 @@ function main(){
     radius = 0.02
     startX = 0.3725 + (0.6275 - 0.3725 - radius)/2;
     startY = -0.25 + (-0.18 - (-0.25) - radius)/2 + 0.015;
+
+    // define oval points for jar sticker
     for (let i = 0; i <= totalPoints; i++) {
         angle = 2 * Math.PI * i / totalPoints;
         x = startX + (radius + 0.05) * Math.cos(angle);
@@ -421,7 +412,7 @@ function main(){
 
     sticker_vertices2 = new Vertices(sticker_vertices2,gl.TRIANGLE_FAN);
 
-    shape = new Shape();
+    shape = new Shape(); //right side shape
     shape.addVertices(left_vertices);
     shape.addVertices(rounded_bottom_left_vertices2);
     shape.addVertices(rounded_bottom_right_vertices2);
@@ -432,7 +423,7 @@ function main(){
     shape.addVertices(line_vertices2);
     shape.addVertices(sticker_vertices2);
     shape.setCenter(0.5,-0.34);
-    shape.setSize(0.375, 0.31);
+    shape.setSize(0.375, 0.32);
     shapes.push(shape);
 
     utils.addShape(shapes);
