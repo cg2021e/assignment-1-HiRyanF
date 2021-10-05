@@ -17,3 +17,9 @@
 ## Top Front
 
 ![Jar-TopFront](assets/Jar-TopFront.jpg)
+
+# WebGL-based Graphics application
+
+Using Top Right and Top Front Photo
+
+NB: Please run index.html using HTTP Protocol (e.g. Live Server) because I'm using JavaScript modules and some browsers block .js file modules with certain protocols
