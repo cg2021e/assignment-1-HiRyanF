@@ -75,17 +75,17 @@ export class glUtils{
 
         shape = this.shapes[1];
         shape.setCenter(shape.centerX, shape.centerY + this.multiplier * this.yChange);
-
+        this.changeY = this.changeY + this.multiplier * this.yChange;
         shape.verticesArr.forEach(vertices => {
             this.arrayBindBuffer(Float32Array,vertices.data,this.gl.STATIC_DRAW);
             this.arrayInterpretation(program, 2,  this.gl.FLOAT, "aPosition", 6 * Float32Array.BYTES_PER_ELEMENT, 0);
             this.arrayInterpretation(program, 4,  this.gl.FLOAT, "aColor", 6 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
             var uChange = this.gl.getUniformLocation(program, "uChange");
-            this.changeY = this.changeY + this.multiplier * this.yChange;
+            
             this.gl.uniform2f(uChange, this.changeX, this.changeY);
             this.gl.drawArrays(vertices.type, 0, vertices.data.length/6);
         });
-        
+
         if(shape.isBounce()){
             this.multiplier = this.multiplier * -1;
         }
