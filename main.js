@@ -69,7 +69,7 @@ function main(){
     programs.push(utils.createProgram(vertexShader,fragmentShader));
     programs.push(utils.createProgram(vertexShader2,fragmentShader2));
     
-    const default_alpha = 0.1;
+    const default_alpha = 0.08;
     let shapes = [];
 
     let front_vertices = new Vertices([
@@ -229,6 +229,21 @@ function main(){
         -0.125, -0.32, 0.0, 0.0, 0.0, 0.5,
     ], gl.LINES);
 
+    const totalPoints=800;
+
+    let sticker_vertices = [];
+    let x, y, angle, radius = 0.02;
+    startX = -0.85 + (-0.2 - (-0.85) - radius)/2;
+    startY = -0.25 + (-0.2 - (-0.25) - radius)/2 + 0.01;
+    for (let i = 0; i <= totalPoints; i++) {
+        angle = 2 * Math.PI * i / totalPoints;
+        x = startX + (radius + 0.1) * Math.cos(angle);
+        y = startY + radius * Math.sin(angle);
+        sticker_vertices.push(x, y, 0.85, 0.42, 0.33, 1.0);
+    }
+
+    sticker_vertices = new Vertices(sticker_vertices,gl.TRIANGLE_FAN);
+
 
     let shape = new Shape();
     shape.addVertices(front_vertices);
@@ -239,6 +254,7 @@ function main(){
     shape.addVertices(rounded_cap_top_right_vertices);
     shape.addVertices(cap_top_vertices);
     shape.addVertices(line_vertices);
+    shape.addVertices(sticker_vertices);
     shapes.push(shape);
 
     let left_vertices = new Vertices([
@@ -371,14 +387,14 @@ function main(){
     let cap_top_vertices2 = new Vertices([        
         0.3125, -0.25, col, col, col, default_alpha,
         0.3725, -0.25, col, col, col, default_alpha,
-        0.3725, -0.19, col, col, col, default_alpha,
+        0.3725, -0.18, col, col, col, default_alpha,
         0.3725, -0.25, col, col, col, default_alpha,
-        0.3725, -0.19, col, col, col, default_alpha,
-        0.6275, -0.19, col, col, col, default_alpha,
+        0.3725, -0.18, col, col, col, default_alpha,
+        0.6275, -0.18, col, col, col, default_alpha,
         0.3725, -0.25, col, col, col, default_alpha,
-        0.6275, -0.19, col, col, col, default_alpha,
+        0.6275, -0.18, col, col, col, default_alpha,
         0.6275, -0.25, col, col, col, default_alpha,
-        0.6275, -0.19, col, col, col, default_alpha,
+        0.6275, -0.18, col, col, col, default_alpha,
         0.6275, -0.25, col, col, col, default_alpha,
         0.6875, -0.25, col, col, col, default_alpha
     ], gl.TRIANGLES);
@@ -391,8 +407,20 @@ function main(){
         0.2875, -0.32, 0.0, 0.0, 0.0, 0.5, 
         0.7125, -0.32, 0.0, 0.0, 0.0, 0.5,
     ], gl.LINES);
-    console.log(rounded_cap_top_left_vertices2)
-    console.log(rounded_cap_top_right_vertices2)
+
+    let sticker_vertices2 = [];
+    radius = 0.02
+    startX = 0.3725 + (0.6275 - 0.3725 - radius)/2;
+    startY = -0.25 + (-0.18 - (-0.25) - radius)/2 + 0.015;
+    for (let i = 0; i <= totalPoints; i++) {
+        angle = 2 * Math.PI * i / totalPoints;
+        x = startX + (radius + 0.05) * Math.cos(angle);
+        y = startY + (radius + 0.008) * Math.sin(angle);
+        sticker_vertices2.push(x, y, 0.85, 0.42, 0.33, 1.0);
+    }
+
+    sticker_vertices2 = new Vertices(sticker_vertices2,gl.TRIANGLE_FAN);
+
     shape = new Shape();
     shape.addVertices(left_vertices);
     shape.addVertices(rounded_bottom_left_vertices2);
@@ -402,7 +430,8 @@ function main(){
     shape.addVertices(rounded_cap_top_right_vertices2);
     shape.addVertices(cap_top_vertices2);
     shape.addVertices(line_vertices2);
-    shape.setCenter(0.5,-0.345);
+    shape.addVertices(sticker_vertices2);
+    shape.setCenter(0.5,-0.34);
     shape.setSize(0.375, 0.31);
     shapes.push(shape);
 
