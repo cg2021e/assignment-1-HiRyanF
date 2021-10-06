@@ -66,57 +66,62 @@ function main(){
     topY = -0.33;
     col = 0.9999;
 
-    let rounded_bottom_left_vertices = [];
-
-    const stepX = 0.000001;
-    const stepY = 0.0000005;
-    const colStep = -0.00003;
-
-    //define points for rounded bottom left using trapezoidal approach
-    for (let i = 0; i <=25000; i++) {
-        rounded_bottom_left_vertices.push(
-            startX - stepX, startY + stepY, col, col, col, default_alpha,
-            startX, startY + stepY, col, col, col, default_alpha,
-            startX, topY, col, col, col, default_alpha,
-            startX - stepX, startY + stepY, col, col, col, default_alpha,
-            startX, topY, col, col, col, default_alpha,
-            startX - stepX, topY, col, col, col, default_alpha,
-            startX, startY + stepY, col, col, col, default_alpha,
-            startX - stepX, startY + stepY, col, col, col, default_alpha,
-            startX, startY, col, col, col, default_alpha,
-        );
-        startX = startX - stepX;
-        startY = startY + stepY;
-        col = col + colStep;
-    }
-
-    rounded_bottom_left_vertices = new Vertices(rounded_bottom_left_vertices, gl.TRIANGLES);
-
-
-    startX = -0.15;
-    startY = -0.5;
-    topY = -0.33;
-    col = 0.9999;
-    let rounded_bottom_right_vertices = []; 
+    //rounded front left (bottom left)
+    let front_left_quarter_circle_vertices = [];
     
-    //define points for rounded bottom right using trapezoidal approach
-    for (let i = 0; i <=25000; i++) {
-        rounded_bottom_right_vertices.push(
-            startX, startY + stepY, col, col, col, default_alpha,
-            startX + stepX, startY + stepY, col, col, col, default_alpha,
-            startX + stepX, topY, col, col, col, default_alpha,
-            startX, startY + stepY, col, col, col, default_alpha,
-            startX + stepX, topY, col, col, col, default_alpha,
-            startX, topY, col, col, col, default_alpha,
-            startX, startY + stepY, col, col, col, default_alpha,
-            startX + stepX, startY + stepY, col, col, col, default_alpha,
-            startX, startY, col, col, col, default_alpha,
-        );
-        startX = startX + stepX;
-        startY = startY + stepY;
-        col = col + colStep;
+    const totalPoints=150;
+
+    let x, y, angle, radius = 0.025;
+    startX = -0.90;
+    startY = -0.5 + radius;
+
+    for (let i = 0; i <= totalPoints; i++) {
+        angle = 0.5 * Math.PI * i / totalPoints + Math.PI;
+        x = startX + radius * Math.cos(angle);
+        y = startY + radius * Math.sin(angle);
+        front_left_quarter_circle_vertices.push(x, y, 1.0, 1.0, 1.0, default_alpha);
     }
-    rounded_bottom_right_vertices = new Vertices(rounded_bottom_right_vertices, gl.TRIANGLES);
+    front_left_quarter_circle_vertices = new Vertices(front_left_quarter_circle_vertices,gl.TRIANGLE_FAN);
+
+    let rounded_bottom_left_vertices = new Vertices([
+        startX, startY - radius, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX - radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX - radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX, -0.33,  1.0, 1.0, 1.0, default_alpha,
+        startX - radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX, -0.33,  1.0, 1.0, 1.0, default_alpha,
+        startX - radius, -0.33,  1.0, 1.0, 1.0, default_alpha,
+        
+    ], gl.TRIANGLES);
+
+    //rounded front right (bottom right)
+    let front_right_quarter_circle_vertices = [];
+    
+    radius = 0.025;
+    startX = -0.15;
+    startY = -0.5 + radius;
+
+    for (let i = 0; i <= totalPoints; i++) {
+        angle = 0.5 * Math.PI * i / totalPoints + 1.5 * Math.PI;
+        x = startX + radius * Math.cos(angle);
+        y = startY + radius * Math.sin(angle);
+        front_right_quarter_circle_vertices.push(x, y, 1.0, 1.0, 1.0, default_alpha);
+    }
+    front_right_quarter_circle_vertices = new Vertices(front_right_quarter_circle_vertices,gl.TRIANGLE_FAN);
+
+    let rounded_bottom_right_vertices = new Vertices([
+        startX, startY - radius, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX + radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX + radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX + radius, -0.33, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX + radius, -0.33, 1.0, 1.0, 1.0, default_alpha,
+        startX, -0.33, 1.0, 1.0, 1.0, default_alpha,
+    ], gl.TRIANGLES);
 
     let cap_front_vertices = new Vertices([
         -0.9, -0.33, 1.0, 1.0, 1.0, default_alpha, 
@@ -127,69 +132,65 @@ function main(){
         -0.9, -0.25, 1.0, 1.0, 1.0, default_alpha,
     ], gl.TRIANGLES);
 
-    startX = -0.9;
-    startY = -0.33;
-    topY = -0.25;
-    col = 0.9999;
 
-    const coverStepX = 0.000001;
-    const coverStepY = 0.000001;
-    const covercolStep = -0.00003;
-    let rounded_cap_top_left_vertices = [];
+    //rounded front left cap
+    let cap_left_quarter_circle_vertices = [];
     
-    //define points for cap top left using trapezoidal approach
-    for (let i = 0; i <=25000; i++) {
-        rounded_cap_top_left_vertices.push(
-            startX - coverStepX, startY, col, col, col, default_alpha,
-            startX, startY, col, col, col, default_alpha,
-            startX, topY - coverStepY, col, col, col, default_alpha,
-            startX - coverStepX, startY, col, col, col, default_alpha,
-            startX, topY - coverStepY, col, col, col, default_alpha,
-            startX - coverStepX, topY - coverStepY, col, col, col, default_alpha,
-            startX, topY - coverStepY, col, col, col, default_alpha,
-            startX - coverStepX, topY - coverStepY, col, col, col, default_alpha,
-            startX, topY, col, col, col, default_alpha,
-        );
-        
-        startX = startX - coverStepX;
-        topY = topY - coverStepY;
-        col = col + covercolStep;
-        
+    radius = 0.025;
+    startX = -0.90;
+    startY = -0.25 - radius;
+
+    for (let i = 0; i <= totalPoints; i++) {
+        angle = 0.5 * Math.PI * i / totalPoints + 0.5 * Math.PI;
+        x = startX + radius * Math.cos(angle);
+        y = startY + radius * Math.sin(angle);
+        cap_left_quarter_circle_vertices.push(x, y, 1.0, 1.0, 1.0, default_alpha);
     }
-    rounded_cap_top_left_vertices = new Vertices(rounded_cap_top_left_vertices, gl.TRIANGLES);
+    cap_left_quarter_circle_vertices = new Vertices(cap_left_quarter_circle_vertices,gl.TRIANGLE_FAN);
+
+    let rounded_cap_front_left_vertices = new Vertices([
+        startX, startY + radius, 1.0, 1.0, 1.0, default_alpha,
+        startX - radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX - radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX, -0.33, 1.0, 1.0, 1.0, default_alpha,
+        startX - radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX, -0.33, 1.0, 1.0, 1.0, default_alpha,
+        startX - radius, -0.33, 1.0, 1.0, 1.0, default_alpha
+    ], gl.TRIANGLES);
 
 
+    //rounded front right cap
+    let cap_right_quarter_circle_vertices = [];
+
+    radius = 0.025;
     startX = -0.15;
-    startY = -0.33;
-    topY = -0.25;
-    col = 0.9999;
+    startY = -0.25 - radius;
 
-    let rounded_cap_top_right_vertices = [];
-    
-    //define points for rounded cap top right using trapezoidal approach
-    for (let i = 0; i <=25000; i++) {
-        rounded_cap_top_right_vertices.push(
-            startX, startY, col, col, col, default_alpha,
-            startX + coverStepX, startY, col, col, col, default_alpha,
-            startX + coverStepX, topY - coverStepY, col, col, col, default_alpha,
-            startX, startY, col, col, col, default_alpha, 
-            startX + coverStepX, topY - coverStepY, col, col, col, default_alpha,
-            startX, topY - coverStepY, col, col, col, default_alpha,
-            startX, topY - coverStepY, col, col, col, default_alpha,
-            startX + coverStepX, topY - coverStepY, col, col, col, default_alpha,
-            startX, topY, col, col, col, default_alpha,
-        );
-        
-        startX = startX + coverStepX;
-        topY = topY - coverStepY;
-        col = col + covercolStep;
-        
+    for (let i = 0; i <= totalPoints; i++) {
+        angle = 0.5 * Math.PI * i / totalPoints;
+        x = startX + radius * Math.cos(angle);
+        y = startY + radius * Math.sin(angle);
+        cap_right_quarter_circle_vertices.push(x, y, 1.0, 1.0, 1.0, default_alpha);
     }
-    rounded_cap_top_right_vertices = new Vertices(rounded_cap_top_right_vertices, gl.TRIANGLES);
+    cap_right_quarter_circle_vertices = new Vertices(cap_right_quarter_circle_vertices,gl.TRIANGLE_FAN);
+
+    let rounded_cap_front_right_vertices = new Vertices([
+        startX, startY + radius, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX + radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX + radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX + radius, -0.33, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX + radius, -0.33, 1.0, 1.0, 1.0, default_alpha,
+        startX, -0.33, 1.0, 1.0, 1.0, default_alpha,
+    ], gl.TRIANGLES);
 
     col = 0.5
     let cap_top_vertices = new Vertices([        
-        -0.9, -0.25, col, col, col, default_alpha,
+        -0.9125, -0.25, col, col, col, default_alpha,
         -0.85, -0.25, col, col, col, default_alpha,
         -0.85, -0.20, col, col, col, default_alpha,
         -0.85, -0.25, col, col, col, default_alpha,
@@ -200,8 +201,9 @@ function main(){
         -0.2, -0.25, col, col, col, default_alpha,
         -0.2, -0.20, col, col, col, default_alpha,
         -0.2, -0.25, col, col, col, default_alpha,
-        -0.15, -0.25, col, col, col, default_alpha
+        -0.1375, -0.25, col, col, col, default_alpha
     ], gl.TRIANGLES);
+
 
     let line_vertices = new Vertices([
         -0.925, -0.34, 0.0, 0.0, 0.0, 0.5, 
@@ -212,10 +214,7 @@ function main(){
         -0.125, -0.32, 0.0, 0.0, 0.0, 0.5,
     ], gl.LINES);
 
-    const totalPoints=800;
-
     let sticker_vertices = [];
-    let x, y, angle, radius = 0.02;
     startX = -0.85 + (-0.2 - (-0.85) - radius)/2;
     startY = -0.25 + (-0.2 - (-0.25) - radius)/2 + 0.01;
 
@@ -232,17 +231,21 @@ function main(){
 
     let shape = new Shape(); //left side shape
     shape.addVertices(front_vertices);
+    shape.addVertices(front_left_quarter_circle_vertices);
     shape.addVertices(rounded_bottom_left_vertices);
+    shape.addVertices(front_right_quarter_circle_vertices);
     shape.addVertices(rounded_bottom_right_vertices);
     shape.addVertices(cap_front_vertices);
-    shape.addVertices(rounded_cap_top_left_vertices);
-    shape.addVertices(rounded_cap_top_right_vertices);
+    shape.addVertices(cap_left_quarter_circle_vertices);
+    shape.addVertices(rounded_cap_front_left_vertices);
+    shape.addVertices(cap_right_quarter_circle_vertices);
+    shape.addVertices(rounded_cap_front_right_vertices);
     shape.addVertices(cap_top_vertices);
     shape.addVertices(line_vertices);
     shape.addVertices(sticker_vertices);
     shapes.push(shape);
 
-    let left_vertices = new Vertices([
+    let front_vertices2 = new Vertices([
         0.3125, -0.5, 1.0, 1.0, 1.0, default_alpha,
         0.6875, -0.5, 1.0, 1.0, 1.0, default_alpha,
         0.6875, -0.33, 1.0, 1.0, 1.0, default_alpha,
@@ -251,59 +254,61 @@ function main(){
         0.3125, -0.33, 1.0, 1.0, 1.0, default_alpha,
     ], gl.TRIANGLES);
 
-
-    let rounded_bottom_left_vertices2 = [];
-
+    //rounded front left (bottom left)
+    let front_left_quarter_circle_vertices2 = [];
+    radius = 0.025;
     startX = 0.3125;
-    startY = -0.5;
-    topY = -0.33;
-    col = 0.9999;
+    startY = -0.5 + radius;
 
-    //define points for rounded bottom left using trapezoidal approach
-    for (let i = 0; i <=25000; i++) {
-        rounded_bottom_left_vertices2.push(
-            startX - stepX, startY + stepY, col, col, col, default_alpha,
-            startX, startY + stepY, col, col, col, default_alpha,
-            startX, topY, col, col, col, default_alpha,
-            startX - stepX, startY + stepY, col, col, col, default_alpha,
-            startX, topY, col, col, col, default_alpha,
-            startX - stepX, topY, col, col, col, default_alpha,
-            startX, startY + stepY, col, col, col, default_alpha,
-            startX - stepX, startY + stepY, col, col, col, default_alpha,
-            startX, startY, col, col, col, default_alpha,
-        );
-        startX = startX - stepX;
-        startY = startY + stepY;
-        col = col + colStep;
+    for (let i = 0; i <= totalPoints; i++) {
+        angle = 0.5 * Math.PI * i / totalPoints + Math.PI;
+        x = startX + radius * Math.cos(angle);
+        y = startY + radius * Math.sin(angle);
+        front_left_quarter_circle_vertices2.push(x, y, 1.0, 1.0, 1.0, default_alpha);
     }
+    front_left_quarter_circle_vertices2 = new Vertices(front_left_quarter_circle_vertices2,gl.TRIANGLE_FAN);
 
-    rounded_bottom_left_vertices2 = new Vertices(rounded_bottom_left_vertices2, gl.TRIANGLES);
+    let rounded_bottom_left_vertices2 = new Vertices([
+        startX, startY - radius, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX - radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX - radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX, -0.33,  1.0, 1.0, 1.0, default_alpha,
+        startX - radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX, -0.33,  1.0, 1.0, 1.0, default_alpha,
+        startX - radius, -0.33,  1.0, 1.0, 1.0, default_alpha,
+        
+    ], gl.TRIANGLES);
 
-
-    startX = 0.6875;
-    startY = -0.5;
-    topY = -0.33;
-    col = 0.9999;
-    let rounded_bottom_right_vertices2 = []; 
+    //rounded front right (bottom right)
+    let front_right_quarter_circle_vertices2 = [];
     
-    //define points for rounded bottom right using trapezoidal approach
-    for (let i = 0; i <=25000; i++) {
-        rounded_bottom_right_vertices2.push(
-            startX, startY + stepY, col, col, col, default_alpha,
-            startX + stepX, startY + stepY, col, col, col, default_alpha,
-            startX + stepX, topY, col, col, col, default_alpha,
-            startX, startY + stepY, col, col, col, default_alpha,
-            startX + stepX, topY, col, col, col, default_alpha,
-            startX, topY, col, col, col, default_alpha,
-            startX, startY + stepY, col, col, col, default_alpha,
-            startX + stepX, startY + stepY, col, col, col, default_alpha,
-            startX, startY, col, col, col, default_alpha,
-        );
-        startX = startX + stepX;
-        startY = startY + stepY;
-        col = col + colStep;
+    radius = 0.025;
+    startX = 0.6875;
+    startY = -0.5 + radius;
+
+    for (let i = 0; i <= totalPoints; i++) {
+        angle = 0.5 * Math.PI * i / totalPoints + 1.5 * Math.PI;
+        x = startX + radius * Math.cos(angle);
+        y = startY + radius * Math.sin(angle);
+        front_right_quarter_circle_vertices2.push(x, y, 1.0, 1.0, 1.0, default_alpha);
     }
-    rounded_bottom_right_vertices2 = new Vertices(rounded_bottom_right_vertices2, gl.TRIANGLES);
+    front_right_quarter_circle_vertices2 = new Vertices(front_right_quarter_circle_vertices2,gl.TRIANGLE_FAN);
+
+    let rounded_bottom_right_vertices2 = new Vertices([
+        startX, startY - radius, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX + radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX + radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX + radius, -0.33, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX + radius, -0.33, 1.0, 1.0, 1.0, default_alpha,
+        startX, -0.33, 1.0, 1.0, 1.0, default_alpha,
+    ], gl.TRIANGLES);
+
+    
 
     let cap_front_vertices2 = new Vertices([
         0.3125, -0.33, 1.0, 1.0, 1.0, default_alpha, 
@@ -315,66 +320,64 @@ function main(){
     ], gl.TRIANGLES);
 
 
-    startX = 0.3125;
-    startY = -0.33;
-    topY = -0.25;
-    col = 0.9999;
-
-    let rounded_cap_top_left_vertices2 = [];
+    //rounded front left cap
+    let cap_left_quarter_circle_vertices2 = [];
     
-    //define points for rounded cap top left using trapezoidal approach
-    for (let i = 0; i <=25000; i++) {
-        rounded_cap_top_left_vertices2.push(
-            startX - coverStepX, startY, col, col, col, default_alpha,
-            startX, startY, col, col, col, default_alpha,
-            startX, topY - coverStepY, col, col, col, default_alpha,
-            startX - coverStepX, startY, col, col, col, default_alpha,
-            startX, topY - coverStepY, col, col, col, default_alpha,
-            startX - coverStepX, topY - coverStepY, col, col, col, default_alpha,
-            startX, topY - coverStepY, col, col, col, default_alpha,
-            startX - coverStepX, topY - coverStepY, col, col, col, default_alpha,
-            startX, topY, col, col, col, default_alpha,
-        );
-        
-        startX = startX - coverStepX;
-        topY = topY - coverStepY;
-        col = col + covercolStep;
-        
+    radius = 0.025;
+    startX = 0.3125;
+    startY = -0.25 - radius;
+
+    for (let i = 0; i <= totalPoints; i++) {
+        angle = 0.5 * Math.PI * i / totalPoints + 0.5 * Math.PI;
+        x = startX + radius * Math.cos(angle);
+        y = startY + radius * Math.sin(angle);
+        cap_left_quarter_circle_vertices2.push(x, y, 1.0, 1.0, 1.0, default_alpha);
     }
-    rounded_cap_top_left_vertices2 = new Vertices(rounded_cap_top_left_vertices2, gl.TRIANGLES);
+    cap_left_quarter_circle_vertices2 = new Vertices(cap_left_quarter_circle_vertices2,gl.TRIANGLE_FAN);
+
+    let rounded_cap_front_left_vertices2 = new Vertices([
+        startX, startY + radius, 1.0, 1.0, 1.0, default_alpha,
+        startX - radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX - radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX, -0.33, 1.0, 1.0, 1.0, default_alpha,
+        startX - radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX, -0.33, 1.0, 1.0, 1.0, default_alpha,
+        startX - radius, -0.33, 1.0, 1.0, 1.0, default_alpha
+    ], gl.TRIANGLES);
 
 
+    //rounded front right cap
+    let cap_right_quarter_circle_vertices2 = [];
+
+    radius = 0.025;
     startX = 0.6875;
-    startY = -0.33;
-    topY = -0.25;
-    col = 0.9999;
+    startY = -0.25 - radius;
 
-    let rounded_cap_top_right_vertices2 = [];
-
-    //define points for rounded cap top right using trapezoidal approach
-    for (let i = 0; i <=25000; i++) {
-        rounded_cap_top_right_vertices2.push(
-            startX, startY, col, col, col, default_alpha,
-            startX + coverStepX, startY, col, col, col, default_alpha,
-            startX + coverStepX, topY - coverStepY, col, col, col, default_alpha,
-            startX, startY, col, col, col, default_alpha, 
-            startX + coverStepX, topY - coverStepY, col, col, col, default_alpha,
-            startX, topY - coverStepY, col, col, col, default_alpha,
-            startX, topY - coverStepY, col, col, col, default_alpha,
-            startX + coverStepX, topY - coverStepY, col, col, col, default_alpha,
-            startX, topY, col, col, col, default_alpha,
-        );
-        
-        startX = startX + coverStepX;
-        topY = topY - coverStepY;
-        col = col + covercolStep;
-        
+    for (let i = 0; i <= totalPoints; i++) {
+        angle = 0.5 * Math.PI * i / totalPoints;
+        x = startX + radius * Math.cos(angle);
+        y = startY + radius * Math.sin(angle);
+        cap_right_quarter_circle_vertices2.push(x, y, 1.0, 1.0, 1.0, default_alpha);
     }
-    rounded_cap_top_right_vertices2 = new Vertices(rounded_cap_top_right_vertices2, gl.TRIANGLES);
+    cap_right_quarter_circle_vertices2 = new Vertices(cap_right_quarter_circle_vertices2,gl.TRIANGLE_FAN);
+
+    let rounded_cap_front_right_vertices2 = new Vertices([
+        startX, startY + radius, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX + radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX + radius, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX + radius, -0.33, 1.0, 1.0, 1.0, default_alpha,
+        startX, startY, 1.0, 1.0, 1.0, default_alpha,
+        startX + radius, -0.33, 1.0, 1.0, 1.0, default_alpha,
+        startX, -0.33, 1.0, 1.0, 1.0, default_alpha,
+    ], gl.TRIANGLES);
 
     col = 0.5
     let cap_top_vertices2 = new Vertices([        
-        0.3125, -0.25, col, col, col, default_alpha,
+        0.3, -0.25, col, col, col, default_alpha,
         0.3725, -0.25, col, col, col, default_alpha,
         0.3725, -0.18, col, col, col, default_alpha,
         0.3725, -0.25, col, col, col, default_alpha,
@@ -385,7 +388,7 @@ function main(){
         0.6275, -0.25, col, col, col, default_alpha,
         0.6275, -0.18, col, col, col, default_alpha,
         0.6275, -0.25, col, col, col, default_alpha,
-        0.6875, -0.25, col, col, col, default_alpha
+        0.7, -0.25, col, col, col, default_alpha
     ], gl.TRIANGLES);
 
     let line_vertices2 = new Vertices([
@@ -413,12 +416,16 @@ function main(){
     sticker_vertices2 = new Vertices(sticker_vertices2,gl.TRIANGLE_FAN);
 
     shape = new Shape(); //right side shape
-    shape.addVertices(left_vertices);
+    shape.addVertices(front_vertices2);
+    shape.addVertices(front_left_quarter_circle_vertices2);
     shape.addVertices(rounded_bottom_left_vertices2);
+    shape.addVertices(front_right_quarter_circle_vertices2);
     shape.addVertices(rounded_bottom_right_vertices2);
     shape.addVertices(cap_front_vertices2);
-    shape.addVertices(rounded_cap_top_left_vertices2);
-    shape.addVertices(rounded_cap_top_right_vertices2);
+    shape.addVertices(cap_left_quarter_circle_vertices2);
+    shape.addVertices(rounded_cap_front_left_vertices2);
+    shape.addVertices(cap_right_quarter_circle_vertices2);
+    shape.addVertices(rounded_cap_front_right_vertices2);
     shape.addVertices(cap_top_vertices2);
     shape.addVertices(line_vertices2);
     shape.addVertices(sticker_vertices2);

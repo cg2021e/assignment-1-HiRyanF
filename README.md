@@ -29,7 +29,7 @@
 7. The rendering result on the right side of the Canvas is animated vertically, bouncing back between the top and the bottom walls of the Canvas, with a speed of 0.0xxx units, where xxx is the last three digits of the NRP.
 8. Do not forget to commit and push the changes.
 
-I'm using Top Right and Top Front Photo
+I'm using Top Front and Top Right Photo
 
 [Here is the result](https://cg2021e.github.io/assignment-1-HiRyanF/)
 
