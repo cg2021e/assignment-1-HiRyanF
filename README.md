@@ -31,6 +31,6 @@
 
 I'm using Top Front and Top Right Photo
 
-[Here is the result](https://cg2021e.github.io/assignment-1-HiRyanF/)
+[Here is the result](https://cg2021e.github.io/assignment-1-HiRyanF/) (open with incognito to make sure the results that appear are the latest results)
 
 NB: Please run index.html using HTTP Protocol (e.g. Live Server) because I'm using JavaScript modules and some browsers block .js file modules with certain protocols
