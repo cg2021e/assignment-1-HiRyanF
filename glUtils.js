@@ -24,10 +24,11 @@ export class glUtils{
         this.shapes = shapes;
     }
 
-    arrayBindBuffer(dataType, vertices, usage){
+    arrayBindBuffer(target, dataType, data, usage){
         let buffer = this.gl.createBuffer();
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, new dataType(vertices), usage);
+        this.gl.bindBuffer(target, buffer);
+        this.gl.bufferData(target, new dataType(data), usage);
+        return buffer;
     }
 
     arrayInterpretation(program, size, dataType, aName, stride, offset){// Teach computer how to collect data from ArrayBuffer
@@ -61,39 +62,4 @@ export class glUtils{
         return shader;
     }
 
-    draw(){
-        this.gl.clearColor(0.5, 0.8, 0.5, 1.0);
-        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-        
-        //Left Side
-        let shape = this.shapes[0];
-        let uChange = this.gl.getUniformLocation(this.program, "uChange");
-        this.gl.uniform2f(uChange, 0, 0);
-        shape.verticesArr.forEach(vertices => {
-            this.arrayBindBuffer(Float32Array,vertices.data,this.gl.STATIC_DRAW);
-            this.arrayInterpretation(this.program, 2,  this.gl.FLOAT, "aPosition", 6 * Float32Array.BYTES_PER_ELEMENT, 0);
-            this.arrayInterpretation(this.program, 4,  this.gl.FLOAT, "aColor", 6 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
-            this.gl.drawArrays(vertices.type, 0, vertices.data.length/6);
-        });
-
-
-        //Right Side
-        shape = this.shapes[1];
-        shape.setCenter(shape.centerX, shape.centerY + this.multiplier * glUtils.yChangeRightSide);
-        this.changeYRightSide = this.changeYRightSide + this.multiplier * glUtils.yChangeRightSide;
-        uChange = this.gl.getUniformLocation(this.program, "uChange");
-        this.gl.uniform2f(uChange, 0, this.changeYRightSide);
-
-        shape.verticesArr.forEach(vertices => {
-            this.arrayBindBuffer(Float32Array,vertices.data,this.gl.STATIC_DRAW);
-            this.arrayInterpretation(this.program, 2,  this.gl.FLOAT, "aPosition", 6 * Float32Array.BYTES_PER_ELEMENT, 0);
-            this.arrayInterpretation(this.program, 4,  this.gl.FLOAT, "aColor", 6 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
-                    
-            this.gl.drawArrays(vertices.type, 0, vertices.data.length/6);
-        });
-
-        if(shape.isBounce(shape.centerY + this.multiplier * glUtils.yChangeRightSide)){
-            this.multiplier = this.multiplier * -1;
-        }
-    }
 }
