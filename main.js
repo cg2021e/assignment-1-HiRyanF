@@ -1,7 +1,5 @@
 import {glUtils} from './glUtils.js';
 import { Box } from './Box.js';
-import {Rectangle} from './Rectangle.js';
-import {Triangle} from './Triangle.js';
 import {Prism} from './Prism.js';
 
 window.onload = () => {
@@ -1447,19 +1445,19 @@ function main(){
     let prism31 = new Prism(prismVertices31);
     let prism32 = new Prism(prismVertices32);
 
-    function makeSticker(sticker, startX, startY, startZ, radius, extraXRadius, extraZRadius){
+    function makeSticker(sticker, indices, startX, startY, startZ, radius, extraXRadius, extraZRadius){
         for(let i = 0; i <= 50; i++){
-            let angle = 2.5 * Math.PI * i/50;
-            let x = Math.cos(angle) * (radius + extraXRadius);
-            let z = Math.sin(angle) * (radius + extraZRadius);
+            let angle = 2 * Math.PI * i/50;
+            let x = startX + Math.cos(angle) * (radius + extraXRadius);
+            let z = startZ + Math.sin(angle) * (radius + extraZRadius);
+            
+            sticker.push(
+                x, startY, z, 1, 0.5, 0, 0, 1, 0,
+            );
+        }
 
-
-            let stickerVertices = [
-                startX, startY, startZ, 1, 0.5, 0, 0, 1, 0,
-                startX, startY, startZ + z, 1, 0.5, 0, 0, 1, 0,
-                startX + x, startY, startZ + z, 1, 0.5, 0, 0, 1, 0,
-            ];
-            sticker.push(new Triangle(stickerVertices));
+        for(let i = 1; i <= 49; i++){
+            indices.push(0, i, i+1);
         }
     }
 
@@ -1470,25 +1468,14 @@ function main(){
     let smallLeftBoxCover1 = new Box(smallLeftBoxCoverVertices);
     let smallRightBoxCover1 = new Box(smallRightBoxCoverVertices);
     
-    let sticker = [];
-    makeSticker(sticker, -0.55, -0.2499, 0 , 0.08, 0.1, 0);
-    sticker.push(new Triangle(
-        [
-            -0.72, -0.2499, 0, 1,0.5,0, 0, 1, 0, 
-            -0.38, -0.2499, 0, 1,0.5,0, 0, 1, 0, 
-            -0.55, -0.2499, -0.05, 1,0.5,0, 0, 1, 0, 
-        ]
-    ));
-    sticker.push(new Triangle(
-        [
-            -0.72, -0.2499, 0, 1,0.5,0, 0, 1, 0, 
-            -0.38, -0.2499, 0, 1,0.5,0, 0, 1, 0, 
-            -0.55, -0.2499, 0.05, 1,0.5,0, 0, 1, 0, 
-        ]
-    ));
-
+    let sticker1 = [];
+    let indicesSticker1 = [];
+    makeSticker(sticker1, indicesSticker1, -0.55, -0.2499, 0, 0.08, 0.1, 0);
+    
     let sticker2 = [];
-    makeSticker(sticker2, 0.5, -0.2499, 0 , 0.08, 0, 0.1);
+    let indicesSticker2 = [];
+    makeSticker(sticker2, indicesSticker2, 0.5, -0.2499, 0, 0.08, 0, 0.1);
+    
     let leftJar = [
         bodyBox1, smallLeftBoxBody1, smallRightBoxBody1, 
         prism, prism2, prism3, prism4, prism5, prism6, prism7, prism8,
@@ -1592,7 +1579,6 @@ function main(){
     );
     gl.uniformMatrix4fv(uView, false, view);
 
-
     let rad = [0, 0, 0];
     let freeze = true;
     let isFirst = true;
@@ -1649,6 +1635,13 @@ function main(){
                 gl.drawElements(gl.TRIANGLES, box.indices.length, gl.UNSIGNED_SHORT, 0);
             });
 
+            utils.arrayBindBuffer(gl.ARRAY_BUFFER, Float32Array, sticker1, gl.STATIC_DRAW);
+            utils.arrayBindBuffer(gl.ELEMENT_ARRAY_BUFFER, Uint16Array, indicesSticker1, gl.STATIC_DRAW);
+            utils.arrayInterpretation(program, 3, gl.FLOAT, "aPosition", 9 * Float32Array.BYTES_PER_ELEMENT, 0);
+            utils.arrayInterpretation(program, 3, gl.FLOAT, "aColor", 9 * Float32Array.BYTES_PER_ELEMENT, 3 * Float32Array.BYTES_PER_ELEMENT);
+            utils.arrayInterpretation(program, 3, gl.FLOAT, "aNormal", 9 * Float32Array.BYTES_PER_ELEMENT, 6 * Float32Array.BYTES_PER_ELEMENT);
+            gl.drawElements(gl.TRIANGLES, indicesSticker1.length, gl.UNSIGNED_SHORT, 0);
+
             rightJar.forEach(data => {
                 utils.arrayBindBuffer(gl.ARRAY_BUFFER, Float32Array, data.vertices, gl.STATIC_DRAW);
                 utils.arrayBindBuffer(gl.ELEMENT_ARRAY_BUFFER, Uint16Array, data.indices, gl.STATIC_DRAW);
@@ -1658,23 +1651,13 @@ function main(){
                 gl.drawElements(gl.TRIANGLES, data.indices.length, gl.UNSIGNED_SHORT, 0);
             });
 
-            sticker.forEach(data => {
-                utils.arrayBindBuffer(gl.ARRAY_BUFFER, Float32Array, data.vertices, gl.STATIC_DRAW);
-                utils.arrayBindBuffer(gl.ELEMENT_ARRAY_BUFFER, Uint16Array, data.indices, gl.STATIC_DRAW);
-                utils.arrayInterpretation(program, 3, gl.FLOAT, "aPosition", 9 * Float32Array.BYTES_PER_ELEMENT, 0);
-                utils.arrayInterpretation(program, 3, gl.FLOAT, "aColor", 9 * Float32Array.BYTES_PER_ELEMENT, 3 * Float32Array.BYTES_PER_ELEMENT);
-                utils.arrayInterpretation(program, 3, gl.FLOAT, "aNormal", 9 * Float32Array.BYTES_PER_ELEMENT, 6 * Float32Array.BYTES_PER_ELEMENT);
-                gl.drawElements(gl.TRIANGLES, data.indices.length, gl.UNSIGNED_SHORT, 0);
-            });
+            utils.arrayBindBuffer(gl.ARRAY_BUFFER, Float32Array, sticker2, gl.STATIC_DRAW);
+            utils.arrayBindBuffer(gl.ELEMENT_ARRAY_BUFFER, Uint16Array, indicesSticker2, gl.STATIC_DRAW);
+            utils.arrayInterpretation(program, 3, gl.FLOAT, "aPosition", 9 * Float32Array.BYTES_PER_ELEMENT, 0);
+            utils.arrayInterpretation(program, 3, gl.FLOAT, "aColor", 9 * Float32Array.BYTES_PER_ELEMENT, 3 * Float32Array.BYTES_PER_ELEMENT);
+            utils.arrayInterpretation(program, 3, gl.FLOAT, "aNormal", 9 * Float32Array.BYTES_PER_ELEMENT, 6 * Float32Array.BYTES_PER_ELEMENT);
+            gl.drawElements(gl.TRIANGLES, indicesSticker2.length, gl.UNSIGNED_SHORT, 0);
 
-            sticker2.forEach(data => {
-                utils.arrayBindBuffer(gl.ARRAY_BUFFER, Float32Array, data.vertices, gl.STATIC_DRAW);
-                utils.arrayBindBuffer(gl.ELEMENT_ARRAY_BUFFER, Uint16Array, data.indices, gl.STATIC_DRAW);
-                utils.arrayInterpretation(program, 3, gl.FLOAT, "aPosition", 9 * Float32Array.BYTES_PER_ELEMENT, 0);
-                utils.arrayInterpretation(program, 3, gl.FLOAT, "aColor", 9 * Float32Array.BYTES_PER_ELEMENT, 3 * Float32Array.BYTES_PER_ELEMENT);
-                utils.arrayInterpretation(program, 3, gl.FLOAT, "aNormal", 9 * Float32Array.BYTES_PER_ELEMENT, 6 * Float32Array.BYTES_PER_ELEMENT);
-                gl.drawElements(gl.TRIANGLES, data.indices.length, gl.UNSIGNED_SHORT, 0);
-            });
 
             gl.uniform3fv(uLightConstant, [1.0, 1.0, 1.0]);
             gl.uniform1f(uAmbientIntensity, 1);
