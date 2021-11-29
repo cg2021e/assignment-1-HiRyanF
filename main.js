@@ -1533,6 +1533,8 @@ function main(){
         // uniform vec3 uLightDirection;
         uniform vec3 uLightPosition;
         uniform mat3 uNormalModel;
+        uniform vec3 uViewerPosition;
+        uniform float uShininessConstant;
         void main(){
             vec3 ambient = uLightConstant * uAmbientIntensity;
             vec3 lightDirection = uLightPosition - vPosition;
@@ -1544,7 +1546,16 @@ function main(){
                 float diffuseIntensity = cosTheta;
                 diffuse = uLightConstant * diffuseIntensity;
             }
-            vec3 phong = ambient + diffuse;
+            vec3 reflector = reflect(-lightDirection, normalizedNormal);
+            vec3 normalizedReflector = normalize(reflector);
+            vec3 normalizedViewer = normalize(uViewerPosition - vPosition);
+            float cosPhi = dot(normalizedReflector, normalizedViewer);
+            vec3 specular = vec3(0.0, 0.0, 0.0);
+            if (cosPhi > 0.0){
+                float specularIntensity = pow(cosPhi , uShininessConstant);
+                specular = uLightConstant * specularIntensity;
+            }
+            vec3 phong = ambient + diffuse + specular;
             gl_FragColor = vec4(phong * vColor, 1.0);
         }
     `;
@@ -1571,9 +1582,10 @@ function main(){
     gl.uniformMatrix4fv(uProjection, false, projection);
 
     let view = glMatrix.mat4.create();
+    let camera = [0,0,2];
     glMatrix.mat4.lookAt(
         view,
-        [0,0,2],
+        camera,
         [0,0,0],
         [0,1,0]
     );
@@ -1645,12 +1657,16 @@ function main(){
             let uLightConstant = gl.getUniformLocation(program, "uLightConstant");
             let uAmbientIntensity = gl.getUniformLocation(program, "uAmbientIntensity");
             let uLightPosition = gl.getUniformLocation(program, "uLightPosition");           
+            var uViewerPosition = gl.getUniformLocation(program, "uViewerPosition");
+            let uShininessConstant = gl.getUniformLocation(program, "uShininessConstant");
+            
+            gl.uniform3fv(uViewerPosition, camera);
+
             isFirst = false;
             isCubeMoved = false;
             isCameraMoved = false;
 
             let uNormalModel = gl.getUniformLocation(program, "uNormalModel");
-
 
             let normalModel1 = glMatrix.mat3.create();
             glMatrix.mat3.normalFromMat4(normalModel1, model1);
@@ -1660,7 +1676,7 @@ function main(){
             
             gl.enable(gl.DEPTH_TEST);
             gl.depthFunc(gl.LEQUAL);
-            gl.clearColor(0.5, 0.5, 0.5, 1.0);
+            gl.clearColor(0.6, 0.8, 0.7, 1.0);
             gl.clearDepth(1.0);
 
             gl.viewport(0.0, 0.0, canvas.width, canvas.height);
@@ -1668,6 +1684,7 @@ function main(){
 
             gl.uniform3fv(uLightConstant, [1.0, 1.0, 1.0]); 
             gl.uniform1f(uAmbientIntensity, 1); //set to 1 because this cube is the light source
+            gl.uniform1f(uShininessConstant, 10);
             gl.uniform3fv(uLightPosition, changeTotalCube);
             utils.arrayBindBuffer(gl.ARRAY_BUFFER, Float32Array, cube.vertices, gl.STATIC_DRAW);
             utils.arrayBindBuffer(gl.ELEMENT_ARRAY_BUFFER, Uint16Array, cube.indices, gl.STATIC_DRAW);
@@ -1679,6 +1696,7 @@ function main(){
 
             gl.uniform3fv(uLightConstant, [1.0, 1.0, 1.0]);
             gl.uniform1f(uAmbientIntensity, 0.352);
+            gl.uniform1f(uShininessConstant, 10);
             gl.uniform3fv(uLightPosition, changeTotalCube);
 
             let normalModel2 = glMatrix.mat3.create();
@@ -1703,6 +1721,8 @@ function main(){
             utils.arrayInterpretation(program, 3, gl.FLOAT, "aNormal", 9 * Float32Array.BYTES_PER_ELEMENT, 6 * Float32Array.BYTES_PER_ELEMENT);
             gl.drawElements(gl.TRIANGLES, indicesSticker1.length, gl.UNSIGNED_SHORT, 0);
 
+
+            gl.uniform1f(uShininessConstant, 500);
             rightJar.forEach(data => {
                 utils.arrayBindBuffer(gl.ARRAY_BUFFER, Float32Array, data.vertices, gl.STATIC_DRAW);
                 utils.arrayBindBuffer(gl.ELEMENT_ARRAY_BUFFER, Uint16Array, data.indices, gl.STATIC_DRAW);
