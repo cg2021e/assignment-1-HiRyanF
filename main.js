@@ -1580,43 +1580,83 @@ function main(){
     gl.uniformMatrix4fv(uView, false, view);
 
     let rad = [0, 0, 0];
+    let changeCube = [0, 0, 0];
+    let changeTotalCube = [0, 0, 0];
+    let change = [0, 0, 0];
     let freeze = true;
     let isFirst = true;
+    let isCubeMoved = false;
+    let isCameraMoved = false;
 
     function onKeyPress(event){
         if(event.keyCode == 32) {
-            freeze = !freeze
-        }; 
+            freeze = !freeze;
+        }
+    }
+
+    function onKeyDown(event){
+        if(event.keyCode == 87){
+            isCubeMoved = true;
+            changeCube[1] = changeCube[1] + 0.01;
+        }else if(event.keyCode == 83){
+            isCubeMoved = true;
+            changeCube[1] = changeCube[1] - 0.01;
+        }else if(event.keyCode == 65){ //camera move leftward means move the object to the right
+            isCameraMoved = true;
+            change[0] = change[0] + 0.01;
+        }else if(event.keyCode == 68){ //camera move rightward means move the object to the left
+            isCameraMoved = true;
+            change[0] = change[0] - 0.01;
+        }
     }
     document.addEventListener("keypress",onKeyPress,false);
+    document.addEventListener("keydown",onKeyDown,false);
     function render(){
+        let model1 = glMatrix.mat4.create(); //for cube
+        let model2 = glMatrix.mat4.create(); //for jar
         
-        if (!freeze || isFirst) { // If it is not freezing, then animate the rectangle
-            let uLightConstant = gl.getUniformLocation(program, "uLightConstant");
-            let uAmbientIntensity = gl.getUniformLocation(program, "uAmbientIntensity");
-            let uLightPosition = gl.getUniformLocation(program, "uLightPosition");
-
-            gl.uniform3fv(uLightConstant, [1.0, 1.0, 1.0]);
-            gl.uniform1f(uAmbientIntensity, 0.352);
-            gl.uniform3fv(uLightPosition, [0.0, 0.0, 0.0]);
-            
-            
-            isFirst = false;
-            let model = glMatrix.mat4.create();
+        if(!freeze){
             rad[0] = rad[0] + 0.0025;
             rad[1] = rad[1] + 0.0025;
             rad[2] = rad[2] + 0.0025;
-            glMatrix.mat4.rotate(model, model, rad[0], [1, 0, 0]);
-            glMatrix.mat4.rotate(model, model, rad[1], [0, 1, 0]);
-            glMatrix.mat4.rotate(model, model, rad[2], [0, 0, 1]);
+            // glMatrix.mat4.rotate(model1, model1, rad[0], [1, 0, 0]);
+            // glMatrix.mat4.rotate(model1, model1, rad[1], [0, 1, 0]);
+            // glMatrix.mat4.rotate(model1, model1, rad[2], [0, 0, 1]);
 
-            let uNormalModel = gl.getUniformLocation(program, "uNormalModel");
-            let normalModel = glMatrix.mat3.create();
-            glMatrix.mat3.normalFromMat4(normalModel, model);
-            gl.uniformMatrix3fv(uNormalModel, false, normalModel);
+            glMatrix.mat4.rotate(model2, model2, rad[0], [1, 0, 0]);
+            glMatrix.mat4.rotate(model2, model2, rad[1], [0, 1, 0]);
+            glMatrix.mat4.rotate(model2, model2, rad[2], [0, 0, 1]);
+        }
+
+
+        if(isCubeMoved || isCameraMoved){
+            changeTotalCube[0] = changeCube[0] + change[0];
+            changeTotalCube[1] = changeCube[1] + change[1];
+            changeTotalCube[2] = changeCube[2] + change[2];
+        }
+
+        glMatrix.mat4.translate(model1, model1, changeTotalCube);
+        glMatrix.mat4.translate(model2, model2, change);
+        
 
         
-            gl.uniformMatrix4fv(uModel, false, model);
+
+        if (!freeze || isFirst || isCubeMoved || isCameraMoved) { // If it is not freezing, then animate
+            let uLightConstant = gl.getUniformLocation(program, "uLightConstant");
+            let uAmbientIntensity = gl.getUniformLocation(program, "uAmbientIntensity");
+            let uLightPosition = gl.getUniformLocation(program, "uLightPosition");           
+            isFirst = false;
+            isCubeMoved = false;
+            isCameraMoved = false;
+
+            let uNormalModel = gl.getUniformLocation(program, "uNormalModel");
+
+
+            let normalModel1 = glMatrix.mat3.create();
+            glMatrix.mat3.normalFromMat4(normalModel1, model1);
+            gl.uniformMatrix3fv(uNormalModel, false, normalModel1);
+
+            gl.uniformMatrix4fv(uModel, false, model1);
             
             gl.enable(gl.DEPTH_TEST);
             gl.depthFunc(gl.LEQUAL);
@@ -1625,6 +1665,27 @@ function main(){
 
             gl.viewport(0.0, 0.0, canvas.width, canvas.height);
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+            gl.uniform3fv(uLightConstant, [1.0, 1.0, 1.0]); 
+            gl.uniform1f(uAmbientIntensity, 1); //set to 1 because this cube is the light source
+            gl.uniform3fv(uLightPosition, changeTotalCube);
+            utils.arrayBindBuffer(gl.ARRAY_BUFFER, Float32Array, cube.vertices, gl.STATIC_DRAW);
+            utils.arrayBindBuffer(gl.ELEMENT_ARRAY_BUFFER, Uint16Array, cube.indices, gl.STATIC_DRAW);
+            utils.arrayInterpretation(program, 3, gl.FLOAT, "aPosition", 9 * Float32Array.BYTES_PER_ELEMENT, 0);
+            utils.arrayInterpretation(program, 3, gl.FLOAT, "aColor", 9 * Float32Array.BYTES_PER_ELEMENT, 3 * Float32Array.BYTES_PER_ELEMENT);
+            utils.arrayInterpretation(program, 3, gl.FLOAT, "aNormal", 9 * Float32Array.BYTES_PER_ELEMENT, 6 * Float32Array.BYTES_PER_ELEMENT);
+            gl.drawElements(gl.TRIANGLES, cube.indices.length, gl.UNSIGNED_SHORT, 0);
+
+
+            gl.uniform3fv(uLightConstant, [1.0, 1.0, 1.0]);
+            gl.uniform1f(uAmbientIntensity, 0.352);
+            gl.uniform3fv(uLightPosition, changeTotalCube);
+
+            let normalModel2 = glMatrix.mat3.create();
+            glMatrix.mat3.normalFromMat4(normalModel2, model2);
+            gl.uniformMatrix3fv(uNormalModel, false, normalModel2);
+
+            gl.uniformMatrix4fv(uModel, false, model2);
 
             leftJar.forEach(box => {
                 utils.arrayBindBuffer(gl.ARRAY_BUFFER, Float32Array, box.vertices, gl.STATIC_DRAW);
@@ -1659,15 +1720,7 @@ function main(){
             gl.drawElements(gl.TRIANGLES, indicesSticker2.length, gl.UNSIGNED_SHORT, 0);
 
 
-            gl.uniform3fv(uLightConstant, [1.0, 1.0, 1.0]);
-            gl.uniform1f(uAmbientIntensity, 1);
-            gl.uniform3fv(uLightPosition, [0.0, 0.0, 0.0]);
-            utils.arrayBindBuffer(gl.ARRAY_BUFFER, Float32Array, cube.vertices, gl.STATIC_DRAW);
-            utils.arrayBindBuffer(gl.ELEMENT_ARRAY_BUFFER, Uint16Array, cube.indices, gl.STATIC_DRAW);
-            utils.arrayInterpretation(program, 3, gl.FLOAT, "aPosition", 9 * Float32Array.BYTES_PER_ELEMENT, 0);
-            utils.arrayInterpretation(program, 3, gl.FLOAT, "aColor", 9 * Float32Array.BYTES_PER_ELEMENT, 3 * Float32Array.BYTES_PER_ELEMENT);
-            utils.arrayInterpretation(program, 3, gl.FLOAT, "aNormal", 9 * Float32Array.BYTES_PER_ELEMENT, 6 * Float32Array.BYTES_PER_ELEMENT);
-            gl.drawElements(gl.TRIANGLES, cube.indices.length, gl.UNSIGNED_SHORT, 0);
+
         }
         requestAnimationFrame(render);
     }
