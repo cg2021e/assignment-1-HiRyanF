@@ -1412,6 +1412,8 @@ function main(){
         0.6675, -0.25, 0.39, 0.8, 0.8, 0.8, 0, 0, 1,
     ];
 
+    //Rounded box with each side consist of 2 prism; each object consist of 2 part (main body & cover); there are 16 prism for each object
+    //Rounded box for left object
     let prism = new Prism(prismVertices);
     let prism2 = new Prism(prismVertices2);
     let prism3 = new Prism(prismVertices3);
@@ -1428,6 +1430,7 @@ function main(){
     let prism14 = new Prism(prismVertices14);
     let prism15 = new Prism(prismVertices15);
     let prism16 = new Prism(prismVertices16);
+    //Rounded box for right object
     let prism17 = new Prism(prismVertices17);
     let prism18 = new Prism(prismVertices18);
     let prism19 = new Prism(prismVertices19);
@@ -1592,19 +1595,13 @@ function main(){
     gl.uniformMatrix4fv(uView, false, view);
 
     let rad = [0, 0, 0];
-    let changeCube = [0, 0, 0];
-    let changeTotalCube = [0, 0, 0];
-    let change = [0, 0, 0];
+    let changeCube = [0, 0, 0]; //for cube movement
+    let changeTotalCube = [0, 0, 0]; //for cube movement + camera movement
+    let change = [0, 0, 0]; //for camera movement
     let freeze = true;
     let isFirst = true;
     let isCubeMoved = false;
     let isCameraMoved = false;
-
-    function onKeyPress(event){
-        if(event.keyCode == 32) {
-            freeze = !freeze;
-        }
-    }
 
     function onKeyDown(event){
         if(event.keyCode == 87){
@@ -1613,15 +1610,17 @@ function main(){
         }else if(event.keyCode == 83){
             isCubeMoved = true;
             changeCube[1] = changeCube[1] - 0.01;
-        }else if(event.keyCode == 65){ //camera move leftward means move the object to the right
+        }else if(event.keyCode == 65){ //camera move leftward looks like the object shifted to the right
             isCameraMoved = true;
             change[0] = change[0] + 0.01;
-        }else if(event.keyCode == 68){ //camera move rightward means move the object to the left
+        }else if(event.keyCode == 68){ //camera move rightward looks like the object shifted to the left
             isCameraMoved = true;
             change[0] = change[0] - 0.01;
+        }else if(event.keyCode == 115) {
+            freeze = !freeze;
         }
     }
-    document.addEventListener("keypress",onKeyPress,false);
+    // document.addEventListener("keypress",onKeyPress,false);
     document.addEventListener("keydown",onKeyDown,false);
     function render(){
         let model1 = glMatrix.mat4.create(); //for cube
@@ -1635,11 +1634,11 @@ function main(){
             // glMatrix.mat4.rotate(model1, model1, rad[1], [0, 1, 0]);
             // glMatrix.mat4.rotate(model1, model1, rad[2], [0, 0, 1]);
 
-            glMatrix.mat4.rotate(model2, model2, rad[0], [1, 0, 0]);
-            glMatrix.mat4.rotate(model2, model2, rad[1], [0, 1, 0]);
-            glMatrix.mat4.rotate(model2, model2, rad[2], [0, 0, 1]);
         }
-
+        
+        glMatrix.mat4.rotate(model2, model2, rad[0], [1, 0, 0]);
+        glMatrix.mat4.rotate(model2, model2, rad[1], [0, 1, 0]);
+        glMatrix.mat4.rotate(model2, model2, rad[2], [0, 0, 1]);
 
         if(isCubeMoved || isCameraMoved){
             changeTotalCube[0] = changeCube[0] + change[0];
@@ -1684,7 +1683,7 @@ function main(){
 
             gl.uniform3fv(uLightConstant, [1.0, 1.0, 1.0]); 
             gl.uniform1f(uAmbientIntensity, 1); //set to 1 because this cube is the light source
-            gl.uniform1f(uShininessConstant, 10);
+            gl.uniform1f(uShininessConstant, 10); //plastic specular effect for left object
             gl.uniform3fv(uLightPosition, changeTotalCube);
             utils.arrayBindBuffer(gl.ARRAY_BUFFER, Float32Array, cube.vertices, gl.STATIC_DRAW);
             utils.arrayBindBuffer(gl.ELEMENT_ARRAY_BUFFER, Uint16Array, cube.indices, gl.STATIC_DRAW);
@@ -1722,7 +1721,7 @@ function main(){
             gl.drawElements(gl.TRIANGLES, indicesSticker1.length, gl.UNSIGNED_SHORT, 0);
 
 
-            gl.uniform1f(uShininessConstant, 500);
+            gl.uniform1f(uShininessConstant, 500); //metal specular effect for right object
             rightJar.forEach(data => {
                 utils.arrayBindBuffer(gl.ARRAY_BUFFER, Float32Array, data.vertices, gl.STATIC_DRAW);
                 utils.arrayBindBuffer(gl.ELEMENT_ARRAY_BUFFER, Uint16Array, data.indices, gl.STATIC_DRAW);
