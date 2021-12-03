@@ -4,8 +4,6 @@ export class glUtils{
         this.canvas = canvas;
         this.gl = null;
         this.program = null;
-        this.changeYRightSide = 0;
-        this.multiplier = 1;
     }
 
     checkWebGl(){
@@ -18,10 +16,6 @@ export class glUtils{
         if(!this.gl) alert('Your browser does not support WebGL rendering');
 
         return this.gl
-    }
-
-    addShape(shapes){
-        this.shapes = shapes;
     }
 
     arrayBindBuffer(target, dataType, data, usage){
