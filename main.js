@@ -1623,11 +1623,11 @@ function main(){
         let model2 = glMatrix.mat4.create(); //for left jar
         let model3 = glMatrix.mat4.create(); //for right jar
 
-        // if(isCubeMoved || isCameraMoved){
-            changeTotalCube[0] = changeCube[0] + change[0];
-            changeTotalCube[1] = changeCube[1] + change[1];
-            changeTotalCube[2] = changeCube[2] + change[2];
-        // }
+        
+        changeTotalCube[0] = changeCube[0] + change[0];
+        changeTotalCube[1] = changeCube[1] + change[1];
+        changeTotalCube[2] = changeCube[2] + change[2];
+        
 
         glMatrix.mat4.translate(model1, model1, changeTotalCube);
         glMatrix.mat4.translate(model2, model2, change);
