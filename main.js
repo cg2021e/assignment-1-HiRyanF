@@ -1604,16 +1604,16 @@ function main(){
     function onKeyDown(event){
         if(event.keyCode == 87){ //W
             //move cube upward
-            changeCube[1] = changeCube[1] + 0.01;
+            changeCube[1] = changeCube[1] + 0.0152;
         }else if(event.keyCode == 83){ //S
             //move cube downward
-            changeCube[1] = changeCube[1] - 0.01;
+            changeCube[1] = changeCube[1] - 0.0152;
         }else if(event.keyCode == 65){ //A
             //camera move leftward looks like the object shifted to the right
-            change[0] = change[0] + 0.01;
+            change[0] = change[0] + 0.0152;
         }else if(event.keyCode == 68){  //D
             //camera move rightward looks like the object shifted to the left
-            change[0] = change[0] - 0.01;
+            change[0] = change[0] - 0.0152;
         }
     }
 
