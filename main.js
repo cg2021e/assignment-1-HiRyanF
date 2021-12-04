@@ -1588,18 +1588,17 @@ function main(){
 
     let view = glMatrix.mat4.create();
     let camera = [0,0,2]; //camera position
+    let cameraLookAt = [0,0,0];
     glMatrix.mat4.lookAt(
         view,
         camera,
-        [0,0,0],    //the point where camera looks at
+        cameraLookAt,    //the point where camera looks at
         [0,1,0]     //up vector of the camera
     );
     gl.uniformMatrix4fv(uView, false, view);
 
     let rad = [0, 0, 0];
     let changeCube = [0, 0, 0]; //for cube movement
-    let changeTotalCube = [0, 0, 0]; //for cube movement + camera movement
-    let change = [0, 0, 0]; //for camera movement
 
     function onKeyDown(event){
         if(event.keyCode == 87){ //W
@@ -1609,11 +1608,27 @@ function main(){
             //move cube downward
             changeCube[1] = changeCube[1] - 0.0152;
         }else if(event.keyCode == 65){ //A
-            //camera move leftward looks like the object shifted to the right
-            change[0] = change[0] + 0.0152;
+            //camera move leftward
+            camera[0] -= 0.0152
+            cameraLookAt[0] -= 0.0152
+            glMatrix.mat4.lookAt(
+                view,
+                camera,
+                cameraLookAt,    //the point where camera looks at
+                [0,1,0]     //up vector of the camera
+            );
+            gl.uniformMatrix4fv(uView, false, view);
         }else if(event.keyCode == 68){  //D
-            //camera move rightward looks like the object shifted to the left
-            change[0] = change[0] - 0.0152;
+            //camera move rightward
+            camera[0] += 0.0152
+            cameraLookAt[0] += 0.0152
+            glMatrix.mat4.lookAt(
+                view,
+                camera,
+                cameraLookAt,    //the point where camera looks at
+                [0,1,0]     //up vector of the camera
+            );
+            gl.uniformMatrix4fv(uView, false, view);
         }
     }
 
@@ -1623,15 +1638,7 @@ function main(){
         let model2 = glMatrix.mat4.create(); //for left jar
         let model3 = glMatrix.mat4.create(); //for right jar
 
-        
-        changeTotalCube[0] = changeCube[0] + change[0];
-        changeTotalCube[1] = changeCube[1] + change[1];
-        changeTotalCube[2] = changeCube[2] + change[2];
-        
-
-        glMatrix.mat4.translate(model1, model1, changeTotalCube);
-        glMatrix.mat4.translate(model2, model2, change);
-        glMatrix.mat4.translate(model3, model3, change);
+        glMatrix.mat4.translate(model1, model1, changeCube);
 
         //find cube position for now
         let cubeLocationNow = glMatrix.vec4.create();
