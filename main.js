@@ -1667,7 +1667,11 @@ function main(){
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         gl.uniform3fv(uLightConstant, [1.0, 1.0, 1.0]); //white
-        gl.uniform1f(uAmbientIntensity, 0.352);
+        if(isLightOn){
+            gl.uniform1f(uAmbientIntensity, 1);
+        }else{
+            gl.uniform1f(uAmbientIntensity, 0.352);
+        }
         gl.uniform1f(uShininessConstant, 10); 
         gl.uniform3fv(uLightPosition, cubeXYZ);
         utils.arrayBindBuffer(gl.ARRAY_BUFFER, Float32Array, cube.vertices, gl.STATIC_DRAW);
