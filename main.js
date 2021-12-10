@@ -1554,6 +1554,7 @@ function main(){
         uniform mat3 uNormalModel;
         uniform vec3 uViewerPosition;
         uniform float uShininessConstant;
+        uniform float uLightOn;
         void main(){
             vec3 ambient = uLightConstant * uAmbientIntensity;
             vec3 lightDirection = uLightPosition - vPosition;
@@ -1574,7 +1575,7 @@ function main(){
                 float specularIntensity = pow(cosPhi , uShininessConstant);
                 specular = uLightConstant * specularIntensity;
             }
-            vec3 phong = ambient + diffuse + specular;
+            vec3 phong = ambient + (uLightOn * diffuse) + (uLightOn * specular);
             gl_FragColor = vec4(phong * vColor, 1.0);
         }
     `;
@@ -1611,7 +1612,24 @@ function main(){
     );
     gl.uniformMatrix4fv(uView, false, view);
 
+    let isLightOn = true;
+
+    
+
+    function onKeyDown(event){
+        if(event.keyCode == 32){//space
+            isLightOn = !isLightOn;
+        }
+    }
+    document.addEventListener("keydown",onKeyDown,false);
+
+    let uLightOn = gl.getUniformLocation(program, "uLightOn");
     function render(){
+        if(isLightOn){
+            gl.uniform1f(uLightOn, 1); 
+        }else{
+            gl.uniform1f(uLightOn, 0); 
+        }
         let model1 = glMatrix.mat4.create(); //for cube
         let model2 = glMatrix.mat4.create(); //for left jar
         let model3 = glMatrix.mat4.create(); //for right jar
@@ -1649,7 +1667,7 @@ function main(){
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         gl.uniform3fv(uLightConstant, [1.0, 1.0, 1.0]); //white
-        gl.uniform1f(uAmbientIntensity, 1); //set to 1 because this cube is the light source (to make cube glow)
+        gl.uniform1f(uAmbientIntensity, 0.352);
         gl.uniform1f(uShininessConstant, 10); 
         gl.uniform3fv(uLightPosition, cubeXYZ);
         utils.arrayBindBuffer(gl.ARRAY_BUFFER, Float32Array, cube.vertices, gl.STATIC_DRAW);
@@ -1721,7 +1739,7 @@ function main(){
         gl.uniformMatrix4fv(uModel, false, model4);
 
         gl.uniform3fv(uLightConstant, [1.0, 1.0, 1.0]); //white
-        gl.uniform1f(uAmbientIntensity, 1); //set to 1 because this cube is the light source (to make cube glow)
+        gl.uniform1f(uAmbientIntensity, 1);
         gl.uniform1f(uShininessConstant, 10); 
         gl.uniform3fv(uLightPosition, cubeXYZ);
         utils.arrayBindBuffer(gl.ARRAY_BUFFER, Float32Array, plane.vertices, gl.STATIC_DRAW);
