@@ -1597,48 +1597,11 @@ function main(){
     );
     gl.uniformMatrix4fv(uView, false, view);
 
-    let rad = [0, 0, 0];
-    let changeCube = [0, 0, 0]; //for cube movement
-
-    function onKeyDown(event){
-        if(event.keyCode == 87){ //W
-            //move cube upward
-            changeCube[1] = changeCube[1] + 0.0152;
-        }else if(event.keyCode == 83){ //S
-            //move cube downward
-            changeCube[1] = changeCube[1] - 0.0152;
-        }else if(event.keyCode == 65){ //A
-            //camera move leftward
-            camera[0] -= 0.0152
-            cameraLookAt[0] -= 0.0152
-            glMatrix.mat4.lookAt(
-                view,
-                camera,
-                cameraLookAt,    //the point where camera looks at
-                [0,1,0]     //up vector of the camera
-            );
-            gl.uniformMatrix4fv(uView, false, view);
-        }else if(event.keyCode == 68){  //D
-            //camera move rightward
-            camera[0] += 0.0152
-            cameraLookAt[0] += 0.0152
-            glMatrix.mat4.lookAt(
-                view,
-                camera,
-                cameraLookAt,    //the point where camera looks at
-                [0,1,0]     //up vector of the camera
-            );
-            gl.uniformMatrix4fv(uView, false, view);
-        }
-    }
-
-    document.addEventListener("keydown",onKeyDown,false);
     function render(){
         let model1 = glMatrix.mat4.create(); //for cube
         let model2 = glMatrix.mat4.create(); //for left jar
         let model3 = glMatrix.mat4.create(); //for right jar
 
-        glMatrix.mat4.translate(model1, model1, changeCube);
 
         //find cube position for now
         let cubeLocationNow = glMatrix.vec4.create();
