@@ -1615,10 +1615,67 @@ function main(){
     let isLightOn = true;
 
     
-
+    let changeCube = [0, 0, 0];
+    let cameraAngle = 0;
+    let cameraRotateSpeed = 180/152;
+    
     function onKeyDown(event){
         if(event.keyCode == 32){//space
             isLightOn = !isLightOn;
+        }else if(event.keyCode == 87){//W
+            changeCube[2] = changeCube[2] - 0.152;
+        }else if(event.keyCode == 83){//S
+            changeCube[2] = changeCube[2] + 0.152;
+        }else if(event.keyCode == 65){//A
+            changeCube[0] = changeCube[0] - 0.152;
+        }else if(event.keyCode == 68){//D
+            changeCube[0] = changeCube[0] + 0.152;
+        }else if(event.keyCode == 38){ //Arrow Up
+            let nextX = 0.0152 * Math.sin(glMatrix.glMatrix.toRadian(-cameraAngle));
+            let nextZ = 0.0152 * Math.cos(glMatrix.glMatrix.toRadian(-cameraAngle)); 
+            camera[0] += nextX;
+            camera[2] -= nextZ;
+           
+            glMatrix.mat4.lookAt(
+                view,
+                camera,
+                cameraLookAt,    //the point where camera looks at
+                [0,1,0]     //up vector of the camera
+            );
+            gl.uniformMatrix4fv(uView, false, view);
+        }else if(event.keyCode == 40){ //Arrow Down
+            let nextX = 0.0152 * Math.sin(glMatrix.glMatrix.toRadian(-cameraAngle));
+            let nextZ = 0.0152 * Math.cos(glMatrix.glMatrix.toRadian(-cameraAngle)); 
+            camera[0] -= nextX;
+            camera[2] += nextZ;
+
+            glMatrix.mat4.lookAt(
+                view,
+                camera,
+                cameraLookAt,    //the point where camera looks at
+                [0,1,0]     //up vector of the camera
+            );
+            gl.uniformMatrix4fv(uView, false, view);
+        }else if(event.keyCode == 37){ //Arrow Left
+            cameraAngle -= cameraRotateSpeed;
+            glMatrix.vec3.rotateY(camera, camera, cameraLookAt, glMatrix.glMatrix.toRadian(-cameraRotateSpeed)); //The rotation origin is set to cameraLookAt (0,0,0)
+            glMatrix.mat4.lookAt(
+                view,
+                camera,
+                cameraLookAt,    //the point where camera looks at
+                [0,1,0]     //up vector of the camera
+            );
+            gl.uniformMatrix4fv(uView, false, view);
+        }else if(event.keyCode == 39){ //Arrow Right
+            cameraAngle += cameraRotateSpeed;
+            glMatrix.vec3.rotateY(camera, camera, cameraLookAt, glMatrix.glMatrix.toRadian(cameraRotateSpeed)); //The rotation origin is set to cameraLookAt (0,0,0)
+            glMatrix.mat4.lookAt(
+                view,
+                camera,
+                cameraLookAt,    //the point where camera looks at
+                [0,1,0]     //up vector of the camera
+            );
+            gl.uniformMatrix4fv(uView, false, view);
         }
     }
     document.addEventListener("keydown",onKeyDown,false);
@@ -1635,7 +1692,8 @@ function main(){
         let model3 = glMatrix.mat4.create(); //for right jar
         let model4 = glMatrix.mat4.create(); //for plane
 
-
+        glMatrix.mat4.translate(model1, model1, changeCube);
+        
         //find cube position for now
         let cubeLocationNow = glMatrix.vec4.create();
         glMatrix.mat4.multiply(cubeLocationNow, model1, [0, 0, 0, 1]);
