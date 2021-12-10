@@ -1,6 +1,7 @@
 import {glUtils} from './glUtils.js';
 import { Box } from './Box.js';
 import {Prism} from './Prism.js';
+import {Rectangle} from './Rectangle.js';
 
 window.onload = () => {
     main();
@@ -1508,6 +1509,19 @@ function main(){
     
     let cube = new Box(cube_vertices);
 
+    //plane color is #152152 in hex
+    //convert to RGB in decimal (21,33,82)
+    //divide with RGB with 255 
+    //surface orientation to y-positive
+    let plane_vertices = [
+        -10, -0.50, 10,  21/255, 33/255, 82/355, 0, 1, 0,
+        10, -0.50, 10, 21/255, 33/255, 82/355, 0, 1, 0,
+        10, -0.50, -10, 21/255, 33/255, 82/355, 0, 1, 0,
+        -10, -0.50, -10, 21/255, 33/255, 82/355, 0, 1, 0,
+    ]
+
+    let plane = new Rectangle(plane_vertices);
+
 
     let vertexShaderSource = `
         attribute vec3 aPosition; 
@@ -1601,6 +1615,7 @@ function main(){
         let model1 = glMatrix.mat4.create(); //for cube
         let model2 = glMatrix.mat4.create(); //for left jar
         let model3 = glMatrix.mat4.create(); //for right jar
+        let model4 = glMatrix.mat4.create(); //for plane
 
 
         //find cube position for now
@@ -1698,6 +1713,23 @@ function main(){
         utils.arrayInterpretation(program, 3, gl.FLOAT, "aColor", 9 * Float32Array.BYTES_PER_ELEMENT, 3 * Float32Array.BYTES_PER_ELEMENT);
         utils.arrayInterpretation(program, 3, gl.FLOAT, "aNormal", 9 * Float32Array.BYTES_PER_ELEMENT, 6 * Float32Array.BYTES_PER_ELEMENT);
         gl.drawElements(gl.TRIANGLES, indicesSticker2.length, gl.UNSIGNED_SHORT, 0);
+
+        let normalModel4 = glMatrix.mat3.create();
+        glMatrix.mat3.normalFromMat4(normalModel4, model4);
+        gl.uniformMatrix3fv(uNormalModel, false, normalModel4);
+
+        gl.uniformMatrix4fv(uModel, false, model4);
+
+        gl.uniform3fv(uLightConstant, [1.0, 1.0, 1.0]); //white
+        gl.uniform1f(uAmbientIntensity, 1); //set to 1 because this cube is the light source (to make cube glow)
+        gl.uniform1f(uShininessConstant, 10); 
+        gl.uniform3fv(uLightPosition, cubeXYZ);
+        utils.arrayBindBuffer(gl.ARRAY_BUFFER, Float32Array, plane.vertices, gl.STATIC_DRAW);
+        utils.arrayBindBuffer(gl.ELEMENT_ARRAY_BUFFER, Uint16Array, plane.indices, gl.STATIC_DRAW);
+        utils.arrayInterpretation(program, 3, gl.FLOAT, "aPosition", 9 * Float32Array.BYTES_PER_ELEMENT, 0);
+        utils.arrayInterpretation(program, 3, gl.FLOAT, "aColor", 9 * Float32Array.BYTES_PER_ELEMENT, 3 * Float32Array.BYTES_PER_ELEMENT);
+        utils.arrayInterpretation(program, 3, gl.FLOAT, "aNormal", 9 * Float32Array.BYTES_PER_ELEMENT, 6 * Float32Array.BYTES_PER_ELEMENT);
+        gl.drawElements(gl.TRIANGLES, plane.indices.length, gl.UNSIGNED_SHORT, 0);
 
         requestAnimationFrame(render);
     }
